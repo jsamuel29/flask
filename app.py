@@ -29,7 +29,7 @@ class AdminSchema(ma.Schema):
 admin_schema = AdminSchema()
 admins_schema = AdminSchema(many=True)
 
-# Endpoint to create a new guide
+# Endpoint to create a new user
 @app.route('/admin', methods=["POST"])
 def add_admin():
     username = request.json['username']
@@ -50,7 +50,26 @@ def get_admins():
     result = admins_schema.dump(all_admins)
     return jsonify(result)
 
+@app.route("/login", methods=["POST"])
+def login():
+    username = request.json['username']
+    password = request.json['password']
 
+    admin = Admin.query.filter_by(username = username).first()
+    
+
+    if admin is None:
+        return jsonify('you need username'), 401
+
+    if admin.password != password:
+        return jsonify({'error' : 'Invalid password'}), 401
+
+
+    if admin.password == password:
+        return jsonify({'token' : 'logged_in'}), 200
+    
+
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
